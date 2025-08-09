@@ -1,0 +1,72 @@
+#include <Wire.h> 
+#include <LCD_I2C.h>
+LCD_I2C lcd(0x27);
+
+int us1trigPin = D5;    // Trigger
+int us1echoPin = D6;    // Echo
+
+
+
+long us1duration,us2duration, us1cm,us2cm, us1inches,us2inches;
+
+#define buzzer D7
+void setup() {
+  // put your setup code here, to run once:
+ Serial.begin(9600);
+ Wire.begin();   //Use predefined PINS consts
+lcd.begin();           // The begin call takes the width and height. This
+                      // Should match the number provided to the constructor.
+
+lcd.backlight();      // Turn on the backlight.
+
+lcd.home(); 
+pinMode(buzzer,OUTPUT);
+
+ pinMode(us1trigPin, OUTPUT);
+  pinMode(us1echoPin, INPUT);
+
+
+   lcd.setCursor(0,0);
+  lcd.print("Hello world!");
+  delay(3000);
+  lcd.clear();
+
+}
+
+void loop() {
+
+  digitalWrite(us1trigPin, LOW);
+  delayMicroseconds(5);
+  digitalWrite(us1trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(us1trigPin, LOW);
+
+  pinMode(us1echoPin, INPUT);
+  us1duration = pulseIn(us1echoPin, HIGH);
+ 
+  // Convert the time into a distance
+  us1cm = (us1duration/2) / 29.1;     // Divide by 29.1 or multiply by 0.0343
+  us1inches = (us1duration/2) / 74;   // Divide by 74 or multiply by 0.0135
+
+ 
+
+  lcd.setCursor(0,0);
+  lcd.print("D :");
+  if(us1cm<=9){lcd.print("00"); lcd.print(us1cm);}
+  else if(us1cm<=99){lcd.print("0"); lcd.print(us1cm);}
+  else if(us1cm<=999){lcd.print(""); lcd.print(us1cm);}
+
+if(us1cm<=50 && us1cm>1){digitalWrite(buzzer,HIGH);
+  lcd.setCursor(0,1);
+  lcd.print("SPEED BREAKER");
+  delay(2000);
+  lcd.clear();}
+else{digitalWrite(buzzer,LOW);
+lcd.setCursor(0,1);
+  lcd.print("              ");}
+
+   
+   
+       delay(300);
+    
+}
